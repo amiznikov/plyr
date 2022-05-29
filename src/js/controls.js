@@ -522,6 +522,10 @@ const controls = {
             this.quality = value;
             break;
 
+          case 'audioTrack':
+            this.audioTrack = value;
+            break;
+
           case 'speed':
             this.speed = parseFloat(value);
             break;
@@ -881,6 +885,19 @@ const controls = {
 
           if (!label.length) {
             return `${value}p`;
+          }
+
+          return label;
+        }
+
+        return toTitleCase(value);
+
+      case 'audioTrack':
+        if (is.number(value)) {
+          const label = i18n.get(`audioTrackLabel.${value}`, this.config);
+
+          if (!label.length) {
+            return `${value}`;
           }
 
           return label;

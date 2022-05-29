@@ -725,6 +725,55 @@ class Plyr {
   }
 
   /**
+   * Set playback audio track
+   * @param {Number} input - Audio track
+   */
+  set audioTrack(input) {
+    const config = this.config.audioTrack;
+    const options = this.options.audioTrack;
+
+    if (!options.length) {
+      return;
+    }
+
+    let audioTrack = [
+      !is.empty(input) && Number(input),
+      this.storage.get('audioTrack'),
+      config.selected,
+      config.default,
+    ].find(is.number);
+
+    let updateStorage = true;
+
+    if (!options.includes(audioTrack)) {
+      const value = closest(options, audioTrack);
+      this.debug.warn(`Unsupported audioTrack option: ${audioTrack}, using ${value} instead`);
+      audioTrack = value;
+
+      // Don't update storage if quality is not supported
+      updateStorage = false;
+    }
+
+    // Update config
+    config.selected = audioTrack;
+
+    // Set audioTrack
+    this.media.audioTrack = audioTrack;
+
+    // Save to storage
+    if (updateStorage) {
+      this.storage.set({ audioTrack });
+    }
+  }
+
+  /**
+   * Get current audioTrack level
+   */
+  get audioTrack() {
+    return this.media.audioTrack;
+  }
+
+  /**
    * Set playback quality
    * Currently HTML5 & YouTube only
    * @param {Number} input - Quality level

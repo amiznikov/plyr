@@ -29,6 +29,14 @@ const html5 = {
     });
   },
 
+  getAudioTrackOptions() {
+    if (this.config.quality.forced) {
+      return this.config.quality.options;
+    }
+
+    return null
+  },
+
   // Get quality levels
   getQualityOptions() {
     // Whether we're forcing all options (e.g. for streaming)
@@ -58,6 +66,27 @@ const html5 = {
       setAspectRatio.call(player);
     }
 
+    // AudioTrack
+    Object.defineProperty(player.media, 'audioTrack', {
+      get() {
+        return player.audioTrack;
+      },
+      set(input) {
+        if (player.audioTrack === input) {
+          return;
+        }
+
+        // If we're using an external handler...
+        if (player.config.audioTrack.forced && is.function(player.config.audioTrack.onChange)) {
+          player.config.audioTrack.onChange(input);
+        }
+
+        // Trigger change event
+        triggerEvent.call(player, player.media, 'audioTrackchange', false, {
+          quality: input,
+        });        
+      }
+    })
     // Quality
     Object.defineProperty(player.media, 'quality', {
       get() {

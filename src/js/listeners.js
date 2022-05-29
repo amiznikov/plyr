@@ -493,6 +493,12 @@ class Listeners {
       controls.updateSetting.call(player, 'quality', null, event.detail.quality);
     });
 
+    // Quality change
+    on.call(player, player.media, 'audioTrackChange', (event) => {
+      // Update UI
+      controls.updateSetting.call(player, 'audioTrack', null, event.detail.audioTrack);
+    });
+
     // Update download link when ready and if quality changes
     on.call(player, player.media, 'ready qualitychange', () => {
       controls.setDownloadUrl.call(player);

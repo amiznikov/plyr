@@ -8,8 +8,8 @@ import './tab-focus';
 import 'custom-event-polyfill';
 import 'url-polyfill';
 
-import * as Sentry from '@sentry/browser';
-import Shr from 'shr-buttons';
+// import * as Sentry from '@sentry/browser';
+// import Shr from 'shr-buttons';
 
 import Plyr from '../../../src/js/plyr';
 import sources from './sources';
@@ -20,25 +20,25 @@ import toggleClass from './toggle-class';
   const isProduction = window.location.host.includes(production);
 
   // Sentry for demo site (https://plyr.io) only
-  if (isProduction) {
-    Sentry.init({
-      dsn: 'https://d4ad9866ad834437a4754e23937071e4@sentry.io/305555',
-      whitelistUrls: [production].map((d) => new RegExp(`https://(([a-z0-9])+(.))*${d}`)),
-    });
-  }
+  // if (isProduction) {
+  //   Sentry.init({
+  //     dsn: 'https://d4ad9866ad834437a4754e23937071e4@sentry.io/305555',
+  //     whitelistUrls: [production].map((d) => new RegExp(`https://(([a-z0-9])+(.))*${d}`)),
+  //   });
+  // }
 
   document.addEventListener('DOMContentLoaded', () => {
     const selector = '#player';
 
     // Setup share buttons
-    Shr.setup('.js-shr', {
-      count: {
-        className: 'button__count',
-      },
-      wrapper: {
-        className: 'button--with-count',
-      },
-    });
+    // Shr.setup('.js-shr', {
+    //   count: {
+    //     className: 'button__count',
+    //   },
+    //   wrapper: {
+    //     className: 'button--with-count',
+    //   },
+    // });
 
     // Setup the player
     const player = new Plyr(selector, {
