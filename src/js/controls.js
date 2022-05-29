@@ -973,6 +973,55 @@ const controls = {
     controls.updateSetting.call(this, type, list);
   },
 
+  // Set the audio tracks menu
+  setAudioTrackMenu(options) {
+    // Menu required
+    if (!is.element(this.elements.settings.panels.audioTrack)) {
+      return;
+    }
+
+    const type = 'audioTrack';
+    const list = this.elements.settings.panels.audioTrack.querySelector('[role="menu"]');
+
+    // Set options if passed and filter based on uniqueness and config
+    if (is.array(options)) {
+      this.options.audioTrack = dedupe(options).filter((audioTrack) => this.config.audioTrack.options.includes(audioTrack));
+    }
+
+    // Toggle the pane and tab
+    const toggle = !is.empty(this.options.audioTrack) && this.options.audioTrack.length > 1;
+    controls.toggleMenuButton.call(this, type, toggle);
+
+    // Empty the menu
+    emptyElement(list);
+
+    // Check if we need to toggle the parent
+    controls.checkMenu.call(this);
+
+    // If we're hiding, nothing more to do
+    if (!toggle) {
+      return;
+    }
+
+
+    // Sort options by the config and then render options
+    this.options.audioTrack
+      .sort((a, b) => {
+        const sorting = this.config.audioTrack.options;
+        return sorting.indexOf(a) > sorting.indexOf(b) ? 1 : -1;
+      })
+      .forEach((audioTrack) => {
+        controls.createMenuItem.call(this, {
+          value: audioTrack,
+          list,
+          type,
+          title: controls.getLabel.call(this, 'audioTrack', audioTrack),
+        });
+      });
+
+    controls.updateSetting.call(this, type, list);
+  },
+
   // Set the looping options
   /* setLoopMenu() {
         // Menu required
@@ -1288,6 +1337,7 @@ const controls = {
       createRange,
       createTime,
       setQualityMenu,
+      setAudioTrackMenu,
       setSpeedMenu,
       showMenuPanel,
     } = controls;
@@ -1627,6 +1677,11 @@ const controls = {
     // Set available quality levels
     if (this.isHTML5) {
       setQualityMenu.call(this, html5.getQualityOptions.call(this));
+    }
+
+    // Set available quality levels
+    if (this.isHTML5) {
+      setAudioTrackMenu.call(this, html5.getAudioTrackOptions.call(this));
     }
 
     setSpeedMenu.call(this);
