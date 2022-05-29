@@ -30,6 +30,7 @@
   },
   "browserslist": "> 1%",
   "scripts": {
+    "prepare": "npm install && npm run build",
     "build": "gulp build",
     "lint": "eslint src/js && npm run remark && stylelint **/*.scss",
     "lint:fix": "eslint --fix src/js && stylelint **/*.scss --fix",
