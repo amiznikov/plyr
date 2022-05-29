@@ -174,6 +174,7 @@ const defaults = {
     pip: 'PIP',
     menuBack: 'Go back to previous menu',
     speed: 'Speed',
+    audioTrack: 'Audio tracks',
     normal: 'Normal',
     quality: 'Quality',
     loop: 'Loop',
