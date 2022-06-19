@@ -102,6 +102,10 @@ class Listeners {
         event.stopPropagation();
       }
 
+      triggerEvent.call(player, elements.container, type, false, {
+        key
+      });
+
       switch (key) {
         case '0':
         case '1':
