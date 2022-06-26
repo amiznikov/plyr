@@ -65,7 +65,7 @@ class Listeners {
           return;
         }
 
-        if (event.key === 'Space' && matches(focused, 'button, [role^="menuitem"]')) {
+        if ((event.key === 'Space' || event.key === ' ') && matches(focused, 'button, [role^="menuitem"]')) {
           return;
         }
       }
@@ -73,6 +73,7 @@ class Listeners {
       // Which keys should we prevent default
       const preventDefault = [
         'Space',
+        ' ',
         'ArrowLeft',
         'ArrowUp',
         'ArrowRight',
@@ -122,8 +123,9 @@ class Listeners {
           break;
 
         case 'Space':
+        case ' ':
         case 'k':
-          if (!repeat) {
+          if (!repeat) {            
             silencePromise(player.togglePlay());
           }
           break;
