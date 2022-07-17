@@ -77,6 +77,15 @@ import toggleClass from './toggle-class';
           },
         ],
       },
+      i18n: {
+        speed: 'Скорость воспроизведения',
+        normal: 'Обычная',
+        quality: 'Качество видео',
+        captions: 'Субтитры',
+        settings: 'Settings',
+        disabled: 'Выкл.',
+        enabled: 'Вкл.',                
+      },      
       markers: {
         enabled: true,
         points: [

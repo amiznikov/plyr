@@ -92,6 +92,7 @@ class Listeners {
 
         'c',
         'f',
+        'а',
         'k',
         'l',
         'm',
@@ -153,6 +154,7 @@ class Listeners {
           break;
 
         case 'f':
+        case 'а':
           player.fullscreen.toggle();
           break;
 
