@@ -64,10 +64,6 @@ class Listeners {
         if (focused !== seek && matches(focused, editable)) {
           return;
         }
-
-        if ((event.key === 'Space' || event.key === ' ') && matches(focused, 'button, [role^="menuitem"]')) {
-          return;
-        }
       }
 
       // Which keys should we prevent default
