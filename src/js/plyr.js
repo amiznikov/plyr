@@ -388,6 +388,20 @@ class Plyr {
   }
 
   /**
+   * Get played array Timeranges
+   */
+  get played() {
+    return this.media.played;
+  }
+
+  /**
+   * Get buffered array Timeranges
+   */
+  get buffered() {
+    return this.media.buffered;
+  }
+
+  /**
    * Get paused state
    */
   get paused() {
