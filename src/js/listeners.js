@@ -28,11 +28,10 @@ class Listeners {
   // Handle key presses
   handleKey(event) {
     const { player } = this;
-    const { elements } = player;
+    const { elements, config } = player;
     const { key, type, altKey, ctrlKey, metaKey, shiftKey } = event;
     const pressed = type === 'keydown';
     const repeat = pressed && key === this.lastKey;
-
     // Bail if a modifier key is set
     if (altKey || ctrlKey || metaKey || shiftKey) {
       return;
@@ -67,7 +66,8 @@ class Listeners {
       }
 
       // Which keys should we prevent default
-      const preventDefault = [
+      const { keyboard } = config;
+      const preventDefault = keyboard.keys || [
         'Space',
         ' ',
         'ArrowLeft',
@@ -102,70 +102,74 @@ class Listeners {
           key
         }); 
       }
+      if(preventDefault.includes(key)) {
 
-      switch (key) {
-        case '0':
-        case '1':
-        case '2':
-        case '3':
-        case '4':
-        case '5':
-        case '6':
-        case '7':
-        case '8':
-        case '9':
-          if (!repeat) {
-            seekByIncrement(parseInt(key, 10));
-          }
-          break;
-
-        case 'Space':
-        case ' ':
-        case 'k':
-          if (!repeat) {            
-            silencePromise(player.togglePlay());
-          }
-          break;
-
-        case 'ArrowUp':
-          player.increaseVolume(0.1);
-          break;
-
-        case 'ArrowDown':
-          player.decreaseVolume(0.1);
-          break;
-
-        case 'm':
-          if (!repeat) {
-            player.muted = !player.muted;
-          }
-          break;
-
-        case 'ArrowRight':
-          player.forward();
-          break;
-
-        case 'ArrowLeft':
-          player.rewind();
-          break;
-
-        case 'f':
-        case 'а':
-          player.fullscreen.toggle();
-          break;
-
-        case 'c':
-          if (!repeat) {
-            player.toggleCaptions();
-          }
-          break;
-
-        case 'l':
-          player.loop = !player.loop;
-          break;
-
-        default:
-          break;
+        switch (key) {
+          case '0':
+          case '1':
+          case '2':
+          case '3':
+          case '4':
+          case '5':
+          case '6':
+          case '7':
+          case '8':
+          case '9':
+  
+            if (!repeat) {
+              seekByIncrement(parseInt(key, 10));
+            }
+            break;
+  
+          case 'Space':
+          case ' ':
+          case 'k':
+            
+            if (!repeat) {            
+              silencePromise(player.togglePlay());
+            }
+            break;
+  
+          case 'ArrowUp':
+            player.increaseVolume(0.1);
+            break;
+  
+          case 'ArrowDown':
+            player.decreaseVolume(0.1);
+            break;
+  
+          case 'm':
+            if (!repeat) {
+              player.muted = !player.muted;
+            }
+            break;
+  
+          case 'ArrowRight':
+            player.forward();
+            break;
+  
+          case 'ArrowLeft':
+            player.rewind();
+            break;
+  
+          case 'f':
+          case 'а':
+            player.fullscreen.toggle();
+            break;
+  
+          case 'c':
+            if (!repeat) {
+              player.toggleCaptions();
+            }
+            break;
+  
+          case 'l':
+            player.loop = !player.loop;
+            break;
+  
+          default:
+            break;
+        }
       }
 
       // Escape is handle natively when in full screen
