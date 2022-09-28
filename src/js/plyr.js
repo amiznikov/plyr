@@ -1,6 +1,6 @@
 // ==========================================================================
 // Plyr
-// plyr.js v3.6.12
+// plyr.js v3.7.2
 // https://github.com/sampotts/plyr
 // License: The MIT License (MIT)
 // ==========================================================================
@@ -388,6 +388,20 @@ class Plyr {
   }
 
   /**
+   * Get played array Timeranges
+   */
+  get played() {
+    return this.media.played;
+  }
+
+  /**
+   * Get buffered array Timeranges
+   */
+  get buffered() {
+    return this.media.buffered;
+  }
+
+  /**
    * Get paused state
    */
   get paused() {
@@ -655,7 +669,7 @@ class Plyr {
 
   /**
    * Set playback speed
-   * @param {Number} speed - the speed of playback (0.5-2.0)
+   * @param {Number} input - the speed of playback (0.5-2.0)
    */
   set speed(input) {
     let speed = null;
@@ -728,6 +742,55 @@ class Plyr {
 
     // https://stackoverflow.com/a/32320020/1191319
     return 16;
+  }
+
+  /**
+   * Set playback audio track
+   * @param {Number} input - Audio track
+   */
+  set audioTrack(input) {
+    const config = this.config.audioTrack;
+    const options = this.options.audioTrack;
+
+    if (!options.length) {
+      return;
+    }
+
+    let audioTrack = [
+      !is.empty(input) && Number(input),
+      this.storage.get('audioTrack'),
+      config.selected,
+      config.default,
+    ].find(is.number);
+
+    let updateStorage = true;
+
+    if (!options.includes(audioTrack)) {
+      const value = closest(options, audioTrack);
+      this.debug.warn(`Unsupported audioTrack option: ${audioTrack}, using ${value} instead`);
+      audioTrack = value;
+
+      // Don't update storage if quality is not supported
+      updateStorage = false;
+    }
+
+    // Update config
+    config.selected = audioTrack;
+
+    // Set audioTrack
+    this.media.audioTrack = audioTrack;
+
+    // Save to storage
+    if (updateStorage) {
+      this.storage.set({ audioTrack });
+    }
+  }
+
+  /**
+   * Get current audioTrack level
+   */
+  get audioTrack() {
+    return this.media.audioTrack;
   }
 
   /**
@@ -939,8 +1002,7 @@ class Plyr {
    * @param {Boolean} input - Whether to autoplay or not
    */
   set autoplay(input) {
-    const toggle = is.boolean(input) ? input : this.config.autoplay;
-    this.config.autoplay = toggle;
+    this.config.autoplay = is.boolean(input) ? input : this.config.autoplay;
   }
 
   /**
@@ -960,11 +1022,11 @@ class Plyr {
 
   /**
    * Set the caption track by index
-   * @param {Number} - Caption index
+   * @param {Number} input - Caption index
    */
   set currentTrack(input) {
     captions.set.call(this, input, false);
-    captions.setup();
+    captions.setup.call(this);
   }
 
   /**
@@ -978,7 +1040,7 @@ class Plyr {
   /**
    * Set the wanted language for captions
    * Since tracks can be added later it won't update the actual caption track until there is a matching track
-   * @param {String} - Two character ISO language code (e.g. EN, FR, PT, etc)
+   * @param {String} input - Two character ISO language code (e.g. EN, FR, PT, etc)
    */
   set language(input) {
     captions.setLanguage.call(this, input, false);
