@@ -475,10 +475,13 @@ class Listeners {
     // Volume change
     on.call(player, player.media, 'volumechange', () => {
       // Save to storage
-      player.storage.set({
-        volume: player.volume,
+      const result = {
         muted: player.muted,
-      });
+      }
+      if(player.volume > 0) {
+        result.volume = player.volume  
+      }
+      player.storage.set(result);
     });
 
     // Speed change

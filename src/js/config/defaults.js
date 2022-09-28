@@ -290,7 +290,7 @@ const defaults = {
   // Selectors
   // Change these to match your template if using custom HTML
   selectors: {
-    editable: 'input, textarea, select, [contenteditable]',
+    editable: '[data-plyr="seek"], textarea, select, [contenteditable]',
     container: '.plyr',
     controls: {
       container: null,
