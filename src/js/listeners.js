@@ -482,7 +482,7 @@ class Listeners {
       const result = {
         muted: player.muted,
       }
-      if(player.volume > 0) {
+      if(player.volume > 0.1) {
         result.volume = player.volume  
       }
       player.storage.set(result);
