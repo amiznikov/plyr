@@ -60,6 +60,7 @@
 @if $plyr-touch-action {
   .plyr--full-ui {
     a,
+    .plyr__progress__line,
     button,
     input,
     label {

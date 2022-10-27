@@ -710,14 +710,15 @@ class Listeners {
     });
 
     // Set range input alternative "value", which matches the tooltip time (#954)
-    this.bind(elements.inputs.seek, 'mousedown mousemove', (event) => {
-      const rect = elements.progress.getBoundingClientRect();
+    this.bind(elements.progressDiv, 'mousedown mousemove', (event) => {
+      const rect = elements.progressDiv.getBoundingClientRect();
       const percent = (100 / rect.width) * (event.pageX - rect.left);
+      console.log(percent)
       event.currentTarget.setAttribute('seek-value', percent);
     });
 
     // Pause while seeking
-    this.bind(elements.inputs.seek, 'mousedown mouseup keydown keyup touchstart touchend', (event) => {
+    this.bind(elements.progressDiv, 'mousedown mouseup keydown keyup touchstart touchend', (event) => {
       const seek = event.currentTarget;
       const attribute = 'play-on-seeked';
 
@@ -743,19 +744,7 @@ class Listeners {
       }
     });
 
-    // Fix range inputs on iOS
-    // Super weird iOS bug where after you interact with an <input type="range">,
-    // it takes over further interactions on the page. This is a hack
-    if (browser.isIos) {
-      const inputs = getElements.call(player, 'input[type="range"]');
-      Array.from(inputs).forEach((input) => this.bind(input, inputEvent, (event) => repaint(event.target)));
-    }
-
-    // Seek
-    this.bind(
-      elements.inputs.seek,
-      inputEvent,
-      (event) => {
+    this.bind(elements.progressDiv, 'mouseup keyup touchend', (event) => {
         const seek = event.currentTarget;
         // If it exists, use seek-value instead of "value" for consistency with tooltip time (#954)
         let seekTo = seek.getAttribute('seek-value');
@@ -766,19 +755,45 @@ class Listeners {
 
         seek.removeAttribute('seek-value');
 
-        player.currentTime = (seekTo / seek.max) * player.duration;
-      },
-      'seek',
-    );
+        player.currentTime = (seekTo / 100) * player.duration;        
+    })
+
+    // Fix range inputs on iOS
+    // Super weird iOS bug where after you interact with an <input type="range">,
+    // it takes over further interactions on the page. This is a hack
+    if (browser.isIos) {
+      const inputs = getElements.call(player, 'input[type="range"]');
+      Array.from(inputs).forEach((input) => this.bind(input, inputEvent, (event) => repaint(event.target)));
+    }
+
+    // Seek
+    // this.bind(
+    //   elements.progressDiv,
+    //   inputEvent,
+    //   (event) => {
+    //     const seek = event.currentTarget;
+    //     // If it exists, use seek-value instead of "value" for consistency with tooltip time (#954)
+    //     let seekTo = seek.getAttribute('seek-value');
+
+    //     if (is.empty(seekTo)) {
+    //       seekTo = seek.value;
+    //     }
+
+    //     seek.removeAttribute('seek-value');
+
+    //     player.currentTime = (seekTo / seek.max) * player.duration;
+    //   },
+    //   'seek',
+    // );
 
     // Seek tooltip
-    this.bind(elements.progress, 'mouseenter mouseleave mousemove', (event) =>
+    this.bind(elements.progressDiv, 'mouseenter mouseleave mousemove', (event) =>
       controls.updateSeekTooltip.call(player, event),
     );
 
     // Preview thumbnails plugin
     // TODO: Really need to work on some sort of plug-in wide event bus or pub-sub for this
-    this.bind(elements.progress, 'mousemove touchmove', (event) => {
+    this.bind(elements.progressDiv, 'mousemove touchmove', (event) => {
       const { previewThumbnails } = player;
 
       if (previewThumbnails && previewThumbnails.loaded) {
@@ -787,7 +802,7 @@ class Listeners {
     });
 
     // Hide thumbnail preview - on mouse click, mouse leave, and video play/seek. All four are required, e.g., for buffering
-    this.bind(elements.progress, 'mouseleave touchend click', () => {
+    this.bind(elements.progressDiv, 'mouseleave touchend click', () => {
       const { previewThumbnails } = player;
 
       if (previewThumbnails && previewThumbnails.loaded) {
@@ -796,7 +811,7 @@ class Listeners {
     });
 
     // Show scrubbing preview
-    this.bind(elements.progress, 'mousedown touchstart', (event) => {
+    this.bind(elements.progressDiv, 'mousedown touchstart', (event) => {
       const { previewThumbnails } = player;
 
       if (previewThumbnails && previewThumbnails.loaded) {
@@ -804,7 +819,7 @@ class Listeners {
       }
     });
 
-    this.bind(elements.progress, 'mouseup touchend', (event) => {
+    this.bind(elements.progressDiv, 'mouseup touchend', (event) => {
       const { previewThumbnails } = player;
 
       if (previewThumbnails && previewThumbnails.loaded) {

@@ -326,6 +326,7 @@ const defaults = {
       loop: '.plyr__progress__loop', // Used later
       volume: '.plyr__volume--display',
     },
+    progressDiv: ".plyr__progress__line",
     progress: '.plyr__progress',
     captions: '.plyr__captions',
     caption: '.plyr__caption',

@@ -6,6 +6,7 @@
 import RangeTouch from 'rangetouch';
 
 import captions from './captions';
+import Progress from './progress';
 import html5 from './html5';
 import support from './support';
 import { repaint, transitionEndEvent } from './utils/animation';
@@ -69,13 +70,12 @@ const controls = {
 
       // Progress
       this.elements.progress = getElement.call(this, this.config.selectors.progress);
+      this.elements.progressDiv = getElement.call(this, this.config.selectors.progressDiv);
 
       // Inputs
       this.elements.inputs = {
-        seek: getElement.call(this, this.config.selectors.inputs.seek),
         volume: getElement.call(this, this.config.selectors.inputs.volume),
       };
-
       // Display
       this.elements.display = {
         buffer: getElement.call(this, this.config.selectors.display.buffer),
@@ -301,6 +301,23 @@ const controls = {
     }
 
     return button;
+  },
+  
+  createProgressDiv(type, attributes) {
+    const progress = createElement(
+      'div',
+      extend(getAttributesFromSelector(this.config.selectors.inputs[type] + "hui"), {
+        class: "plyr__progress__line"
+      }, 
+      attributes)
+    )
+    this.progressDiv = new Progress(this.config, progress);
+    this.elements.progressDiv = progress;
+    controls.updateRangeFill.call(this, progress);
+    RangeTouch.setup(progress);
+
+    return progress;
+
   },
 
   // Create an <input type='range'>
@@ -558,13 +575,19 @@ const controls = {
     return formatTime(time, forceHours, inverted);
   },
 
+  updateDuration(target = null, time = 0) {
+    if (!is.element(target) || !is.number(time)) {
+      return;
+    }
+
+    this.progressDiv.setDuration(time);
+  },
   // Update the displayed time
   updateTimeDisplay(target = null, time = 0, inverted = false) {
     // Bail if there's no element to display or the value isn't a number
     if (!is.element(target) || !is.number(time)) {
       return;
     }
-
     // eslint-disable-next-line no-param-reassign
     target.innerText = controls.formatTime(time, inverted);
   },
@@ -586,7 +609,10 @@ const controls = {
     }
   },
 
-  // Update seek value and lower fill
+  // Update buffer value and lower fill
+  setBuffer(value = 0) {
+    this.progressDiv.setBufferTime(value);
+  },
   setRange(target, value = 0) {
     if (!is.element(target)) {
       return;
@@ -633,7 +659,7 @@ const controls = {
 
           // Set seek range value only if it's a 'natural' time event
           if (event.type === 'timeupdate') {
-            controls.setRange.call(this, this.elements.inputs.seek, value);
+            controls.setRange.call(this, this.elements.progressDiv, value);
           }
 
           break;
@@ -642,7 +668,7 @@ const controls = {
         case 'playing':
         case 'progress':
           setProgress(this.elements.display.buffer, this.buffered * 100);
-
+          controls.setBuffer.call(this,this.buffered * 100)
           break;
 
         default:
@@ -657,21 +683,18 @@ const controls = {
     const range = is.event(target) ? target.target : target;
 
     // Needs to be a valid <input type='range'>
-    if (!is.element(range) || range.getAttribute('type') !== 'range') {
+    if (!is.element(range)) {
       return;
     }
 
     // Set aria values for https://github.com/sampotts/plyr/issues/905
-    if (matches(range, this.config.selectors.inputs.seek)) {
-      range.setAttribute('aria-valuenow', this.currentTime);
-      const currentTime = controls.formatTime(this.currentTime);
-      const duration = controls.formatTime(this.duration);
-      const format = i18n.get('seekLabel', this.config);
-      range.setAttribute(
-        'aria-valuetext',
-        format.replace('{currentTime}', currentTime).replace('{duration}', duration),
-      );
-    } else if (matches(range, this.config.selectors.inputs.volume)) {
+    if (matches(range, this.config.selectors.progressDiv)) {
+      this.progressDiv && this.progressDiv.setCurrentTime(this.currentTime);
+    }
+
+    if(range.getAttribute('type') !== 'range') return;
+
+    if (matches(range, this.config.selectors.inputs.volume)) {
       const percent = range.value * 100;
       range.setAttribute('aria-valuenow', percent);
       range.setAttribute('aria-valuetext', `${percent.toFixed(1)}%`);
@@ -693,7 +716,7 @@ const controls = {
     // Bail if setting not true
     if (
       !this.config.tooltips.seek ||
-      !is.element(this.elements.inputs.seek) ||
+      !is.element(this.elements.progressDiv) ||
       !is.element(this.elements.display.seekTooltip) ||
       this.duration === 0
     ) {
@@ -712,7 +735,7 @@ const controls = {
 
     // Determine percentage, if already visible
     let percent = 0;
-    const clientRect = this.elements.progress.getBoundingClientRect();
+    const clientRect = this.elements.progressDiv.getBoundingClientRect();
 
     if (is.event(event)) {
       percent = (100 / clientRect.width) * (event.pageX - clientRect.left);
@@ -791,14 +814,9 @@ const controls = {
       return;
     }
 
-    // Update ARIA values
-    if (is.element(this.elements.inputs.seek)) {
-      this.elements.inputs.seek.setAttribute('aria-valuemax', this.duration);
-    }
-
     // If there's a spot to display duration
     const hasDuration = is.element(this.elements.display.duration);
-
+    controls.updateDuration.call(this, this.elements.progressDiv, this.duration)
     // If there's only one time display, display duration there
     if (!hasDuration && this.config.displayDuration && this.paused) {
       controls.updateTimeDisplay.call(this, this.elements.display.currentTime, this.duration);
@@ -1335,6 +1353,7 @@ const controls = {
       createButton,
       createProgress,
       createRange,
+      createProgressDiv,
       createTime,
       setQualityMenu,
       setAudioTrackMenu,
@@ -1386,14 +1405,21 @@ const controls = {
         const progress = createElement('div', getAttributesFromSelector(this.config.selectors.progress));
 
         // Seek range slider
+        // progress.appendChild(
+        //   createRange.call(this, 'seek', {
+        //     id: `plyr-seek-${data.id}`,
+        //   }),
+        // );
+
+        // Seek range slider
         progress.appendChild(
-          createRange.call(this, 'seek', {
+          createProgressDiv.call(this, 'seek', {
             id: `plyr-seek-${data.id}`,
           }),
         );
 
         // Buffer progress
-        progress.appendChild(createProgress.call(this, 'buffer'));
+        // progress.appendChild(createProgress.call(this, 'buffer'));
 
         // TODO: Add loop display indicator
 

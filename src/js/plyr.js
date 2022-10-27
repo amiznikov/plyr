@@ -397,9 +397,9 @@ class Plyr {
   /**
    * Get buffered array Timeranges
    */
-  get buffered() {
-    return this.media.buffered;
-  }
+  // get buffered() {
+  //   return this.media.buffered;
+  // }
 
   /**
    * Get paused state
