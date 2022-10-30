@@ -1,4 +1,5 @@
 import { createElement } from "./utils/elements";
+import { on } from './utils/events';
 
 export default class ProgressBar {
     constructor(config, element) {
@@ -15,6 +16,8 @@ export default class ProgressBar {
         })
 
         this.subscribeAttributeChange(this._element, "seek-value")
+
+        on.call(this, this._element, 'mouseenter mousemove mouseleave', this.onEnterMainElement.bind(this), false);
 
         this._element.appendChild(this._progressContainer);
 
@@ -35,7 +38,34 @@ export default class ProgressBar {
         const observer = new MutationObserver(callback);
         observer.observe(element, config);
 
-    }    
+    }  
+    
+    onEnterMainElement(event) {
+        
+        const rect = this._element.getBoundingClientRect();
+        const percent = (100 / rect.width) * (event.pageX - rect.left);   
+        const currentPosition = this._element.offsetWidth * (percent / 100);
+        const elements = Array.from(this._progressContainer.children);
+        let sumWidth = 0;
+        let elementResult = null;
+        for(let i = 0; i < elements.length; i++) {
+            const prevSum = sumWidth;
+            sumWidth += elements[i].offsetWidth;
+            if(currentPosition < sumWidth && prevSum < currentPosition) {
+                elementResult = elements[i];                
+            }  else {
+                elements[i].classList.remove('plyr__progress__segment-hover');
+            }
+        }
+        if(event.type !== 'mouseleave') {
+            elementResult.classList.add('plyr__progress__segment-hover');
+        } else {
+            for(let i = 0; i < elements.length; i++) {
+                elements[i].classList.remove('plyr__progress__segment-hover');
+            }
+        }
+        
+    }
 
     setDuration(value) {
         this._duration = value;

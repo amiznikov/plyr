@@ -53,7 +53,7 @@ $plyr-progress-offset: $plyr-range-thumb-height;
       position: relative;
       margin-right: 2px;
       overflow: hidden;
-      &:hover {
+      &.plyr__progress__segment-hover {
         transform: scaleY($plyr-range-track-scale);
         transition: transform 0.1s ease;
       } 

@@ -306,7 +306,7 @@ const controls = {
   createProgressDiv(type, attributes) {
     const progress = createElement(
       'div',
-      extend(getAttributesFromSelector(this.config.selectors.inputs[type] + "hui"), {
+      extend(getAttributesFromSelector(this.config.selectors.inputs[type]), {
         class: "plyr__progress__line"
       }, 
       attributes)
