@@ -16,6 +16,7 @@ $plyr-range-thumb-active-shadow-width: var(--plyr-range-thumb-active-shadow-widt
 
 // Track
 $plyr-range-track-height: var(--plyr-range-track-height, 5px) !default;
+$plyr-range-track-scale: var(--plyr-range-track-scale, 2) !default;
 
 // Fill
 $plyr-range-fill-background: var(--plyr-range-fill-background, var(--plyr-color-main, $plyr-color-main)) !default;

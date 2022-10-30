@@ -710,18 +710,21 @@ class Listeners {
     });
 
     // Set range input alternative "value", which matches the tooltip time (#954)
-    this.bind(elements.progressDiv, 'mousedown mousemove', (event) => {
-      const rect = elements.progressDiv.getBoundingClientRect();
-      const percent = (100 / rect.width) * (event.pageX - rect.left);
-      console.log(percent)
-      event.currentTarget.setAttribute('seek-value', percent);
+    this.bind(elements.progressDiv, 'mousemove', (event) => {
+      const seek = event.currentTarget;
+      const attribute = 'is-down';
+      const isSeeking = seek.hasAttribute(attribute);
+      if(isSeeking) {
+        const rect = elements.progressDiv.getBoundingClientRect();
+        const percent = (100 / rect.width) * (event.pageX - rect.left);
+        event.currentTarget.setAttribute('seek-value', percent);
+      }
     });
 
     // Pause while seeking
     this.bind(elements.progressDiv, 'mousedown mouseup keydown keyup touchstart touchend', (event) => {
       const seek = event.currentTarget;
       const attribute = 'play-on-seeked';
-
       if (is.keyboardEvent(event) && !['ArrowLeft', 'ArrowRight'].includes(event.key)) {
         return;
       }
@@ -733,30 +736,32 @@ class Listeners {
       const play = seek.hasAttribute(attribute);
       // Done seeking
       const done = ['mouseup', 'touchend', 'keyup'].includes(event.type);
-
-      // If we're done seeking and it was playing, resume playback
-      if (play && done) {
-        seek.removeAttribute(attribute);
-        silencePromise(player.play());
-      } else if (!done && player.playing) {
-        seek.setAttribute(attribute, '');
-        player.pause();
-      }
-    });
-
-    this.bind(elements.progressDiv, 'mouseup keyup touchend', (event) => {
-        const seek = event.currentTarget;
-        // If it exists, use seek-value instead of "value" for consistency with tooltip time (#954)
+      if(player.paused) {
         let seekTo = seek.getAttribute('seek-value');
 
         if (is.empty(seekTo)) {
           seekTo = seek.value;
         }
+        
 
-        seek.removeAttribute('seek-value');
-
-        player.currentTime = (seekTo / 100) * player.duration;        
-    })
+        player.currentTime = (seekTo / 100) * player.duration;    
+      }
+      // If we're done seeking and it was playing, resume playback
+      if (play && done) {
+        seek.removeAttribute(attribute);
+        seek.removeAttribute('is-down');
+        silencePromise(player.play());
+      } else if (!done && player.playing) {
+        seek.setAttribute(attribute, '');
+        seek.setAttribute("is-down", '');
+        player.pause();
+        setTimeout(() => {
+          const rect = elements.progressDiv.getBoundingClientRect();
+          const percent = (100 / rect.width) * (event.pageX - rect.left);
+          elements.progressDiv.setAttribute('seek-value', percent);                
+        })
+      }
+    });
 
     // Fix range inputs on iOS
     // Super weird iOS bug where after you interact with an <input type="range">,

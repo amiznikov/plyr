@@ -50,6 +50,13 @@ $plyr-progress-offset: $plyr-range-thumb-height;
     height: $plyr-range-track-height;    
     display: flex;    
     .plyr__progress__segment {
+      position: relative;
+      margin-right: 2px;
+      overflow: hidden;
+      &:hover {
+        transform: scaleY($plyr-range-track-scale);
+        transition: transform 0.1s ease;
+      } 
       .plyr__progress__segment-bg, 
       .plyr__progress__segment-time, 
       .plyr__progress__segment-buffer {
