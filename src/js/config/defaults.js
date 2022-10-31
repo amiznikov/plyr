@@ -267,6 +267,7 @@ const defaults = {
     'languagechange',
     'controlshidden',
     'controlsshown',
+    'clipIsChanged',
     'ready',
 
     // YouTube
