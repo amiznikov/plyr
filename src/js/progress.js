@@ -96,9 +96,12 @@ export default class ProgressBar {
         
         if(this.clips && this.clips.length > 0) {
             const text = this.clips[currentIndex];
-            triggerEvent.call(this._player, this._player.media, "clipIsChanged", false, {
-                text
-            })
+            if(this._prevTextEmited != text) {
+                this._prevTextEmited = text;
+                triggerEvent.call(this._player, this._player.media, "clipIsChanged", false, {
+                    text
+                })
+            }
         }
     }
 
