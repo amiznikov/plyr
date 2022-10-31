@@ -232,8 +232,9 @@ class PreviewThumbnails {
 
       this.mousePosX = event.pageX;
 
+      const text = this.player.progressDiv.getCurrentText(event);
       // Set time text inside image container
-      this.elements.thumb.time.innerText = formatTime(this.seekTime);
+      this.elements.thumb.time.innerText = `${text}${formatTime(this.seekTime)}`;
 
       // Get marker point for time
       const point = this.player.config.markers?.points?.find(({ time: t }) => t === Math.round(this.seekTime));

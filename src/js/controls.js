@@ -6,7 +6,6 @@
 import RangeTouch from 'rangetouch';
 
 import captions from './captions';
-import Progress from './progress';
 import html5 from './html5';
 import support from './support';
 import { repaint, transitionEndEvent } from './utils/animation';
@@ -311,7 +310,7 @@ const controls = {
       }, 
       attributes)
     )
-    this.progressDiv = new Progress(this.config, progress);
+    this.progressDiv.setElement(progress);
     this.elements.progressDiv = progress;
     controls.updateRangeFill.call(this, progress);
     RangeTouch.setup(progress);
@@ -753,9 +752,9 @@ const controls = {
     }
 
     const time = (this.duration / 100) * percent;
-
+    const text = this.progressDiv.getCurrentText(event);
     // Display the time a click would seek to
-    tipElement.innerText = controls.formatTime(time);
+    tipElement.innerText = `${text}${controls.formatTime(time)}`;
 
     // Get marker point for time
     const point = this.config.markers?.points?.find(({ time: t }) => t === Math.round(time));

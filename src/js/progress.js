@@ -1,13 +1,17 @@
 import { createElement } from "./utils/elements";
-import { on } from './utils/events';
+import { on, triggerEvent } from './utils/events';
 
 export default class ProgressBar {
-    constructor(config, element) {
-        this._config = config;
-        this._element = element;
+    constructor(player) {
+        this._player = player;
+        this._config = this._player.config;        
         this.segments = [];
-        this.initialize();
         
+    }
+
+    setElement(element) {
+        this._element = element;
+        this.initialize();
     }
 
     initialize() {
@@ -42,23 +46,15 @@ export default class ProgressBar {
     
     onEnterMainElement(event) {
         
-        const rect = this._element.getBoundingClientRect();
-        const percent = (100 / rect.width) * (event.pageX - rect.left);   
-        const currentPosition = this._element.offsetWidth * (percent / 100);
         const elements = Array.from(this._progressContainer.children);
-        let sumWidth = 0;
-        let elementResult = null;
+        const currentPosition = this.getCurrentElement(event);
         for(let i = 0; i < elements.length; i++) {
-            const prevSum = sumWidth;
-            sumWidth += elements[i].offsetWidth;
-            if(currentPosition < sumWidth && prevSum < currentPosition) {
-                elementResult = elements[i];                
-            }  else {
+            if(currentPosition !== i) {
                 elements[i].classList.remove('plyr__progress__segment-hover');
             }
         }
         if(event.type !== 'mouseleave') {
-            elementResult.classList.add('plyr__progress__segment-hover');
+            elements[currentPosition].classList.add('plyr__progress__segment-hover');
         } else {
             for(let i = 0; i < elements.length; i++) {
                 elements[i].classList.remove('plyr__progress__segment-hover');
@@ -67,20 +63,51 @@ export default class ProgressBar {
         
     }
 
+    getCurrentText(event) {
+        const currentPosition = this.getCurrentElement(event);
+        const text = this.clips[currentPosition] ? `${this.clips[currentPosition].text}\n` : ""
+        return text;
+    }
+
+    getCurrentElement(event) {
+        const rect = this._element.getBoundingClientRect();
+        const percent = (100 / rect.width) * (event.pageX - rect.left);   
+        const currentPosition = this._element.offsetWidth * (percent / 100);
+        const elements = Array.from(this._progressContainer.children);
+        let sumWidth = 0;
+        let position = 0;
+        for(let i = 0; i < elements.length; i++) {
+            const prevSum = sumWidth;
+            sumWidth += elements[i].offsetWidth;
+            if(currentPosition < sumWidth && prevSum < currentPosition) {                
+                position = i;
+            }
+        }        
+        return position;
+    }
+
     setDuration(value) {
         this._duration = value;
         this.render();
     }
 
     setCurrentTime(value) {
-        this.updateProgress('.plyr__progress__segment-time', this._duration, value)     
+        const currentIndex = this.updateProgress('.plyr__progress__segment-time', this._duration, value)     
+        
+        if(this.clips && this.clips.length > 0) {
+            const text = this.clips[currentIndex];
+            triggerEvent.call(this._player, this._player.media, "clipIsChanged", false, {
+                text
+            })
+        }
     }
 
     updateProgress(className, delimentr, value) {
+        let currentIndexElement = 0;
         if(this._duration) {
             const percent = value / delimentr;
             let currentWidth = this._width * percent;
-            const elements = Array.from(this._progressContainer.children);
+            const elements = Array.from(this._progressContainer.children);            
             for(let i = 0; i < elements.length; i++) {
                 const elementWidth = elements[i].offsetWidth;
                 if(currentWidth < elementWidth) {
@@ -91,6 +118,7 @@ export default class ProgressBar {
                             elements[i].querySelector(className),
                             percentInElement
                         )
+                        currentIndexElement = i;
                     } else {
                         this.setScaleInElement(
                             elements[i].querySelector(className),
@@ -107,6 +135,7 @@ export default class ProgressBar {
                 }
             }                 
         }
+        return currentIndexElement;
     }
 
     setScaleInElement(element, value) {

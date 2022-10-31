@@ -12,6 +12,7 @@ import { getProviderByUrl, providers, types } from './config/types';
 import Console from './console';
 import controls from './controls';
 import Fullscreen from './fullscreen';
+import Progress from './progress';
 import html5 from './html5';
 import Listeners from './listeners';
 import media from './media';
@@ -289,6 +290,8 @@ class Plyr {
 
     // Setup fullscreen
     this.fullscreen = new Fullscreen(this);
+
+    this.progressDiv = new Progress(this);
 
     // Setup interface
     // If embed but not fully supported, build interface now to avoid flash of controls
