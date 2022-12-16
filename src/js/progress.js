@@ -5,12 +5,21 @@ export default class ProgressBar {
     constructor(player) {
         this._player = player;
         this._config = this._player.config;        
-        this.segments = [];
-        
+        this.segments = [];        
+    }
+
+    bindEvents() {
+        if(this._player.elements.container) {
+            on.call(this._player, this._player.elements.container, 'enterfullscreen exitfullscreen', (e) => {
+                this.render()
+
+            }, false);     
+        }
     }
 
     setElement(element) {
         this._element = element;
+        this.bindEvents();        
         this.initialize();
     }
 
