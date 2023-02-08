@@ -79,8 +79,12 @@ export default class ProgressBar {
     }
 
     getCurrentElement(event) {
+        let pageX = event.pageX;
+        if(event.touches && event.touches.length > 0) {
+          pageX = event.touches[0].pageX;
+        }              
         const rect = this._element.getBoundingClientRect();
-        const percent = (100 / rect.width) * (event.pageX - rect.left);   
+        const percent = (100 / rect.width) * (pageX - rect.left);   
         const currentPosition = this._element.offsetWidth * (percent / 100);
         const elements = Array.from(this._progressContainer.children);
         let sumWidth = 0;
@@ -90,6 +94,10 @@ export default class ProgressBar {
             sumWidth += elements[i].offsetWidth;
             if(currentPosition < sumWidth && prevSum < currentPosition) {                
                 position = i;
+            } else {
+                if(currentPosition > sumWidth && prevSum < currentPosition) {
+                    position = i;
+                }
             }
         }        
         return position;

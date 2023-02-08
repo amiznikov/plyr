@@ -710,13 +710,17 @@ class Listeners {
     });
 
     // Set range input alternative "value", which matches the tooltip time (#954)
-    this.bind(elements.progressDiv, 'mousemove', (event) => {
+    this.bind(elements.progressDiv, 'mousemove', (event) => {      
       const seek = event.currentTarget;
       const attribute = 'is-down';
       const isSeeking = seek.hasAttribute(attribute);
       if(isSeeking) {
+        let pageX = event.pageX;
+        if(event.touches && event.touches.length > 0) {
+          pageX = event.touches[0].pageX;
+        }                      
         const rect = elements.progressDiv.getBoundingClientRect();
-        const percent = (100 / rect.width) * (event.pageX - rect.left);
+        const percent = (100 / rect.width) * (pageX - rect.left);
         event.currentTarget.setAttribute('seek-value', percent);
       }
     });
@@ -757,7 +761,12 @@ class Listeners {
         player.pause();
         setTimeout(() => {
           const rect = elements.progressDiv.getBoundingClientRect();
-          const percent = (100 / rect.width) * (event.pageX - rect.left);
+          let pageX = event.pageX;
+          if(event.touches && event.touches.length > 0) {
+            pageX = event.touches[0].pageX;
+          }          
+          const percent = (100 / rect.width) * (pageX - rect.left);
+          
           elements.progressDiv.setAttribute('seek-value', percent);                
         })
       }

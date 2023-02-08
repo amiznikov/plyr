@@ -210,13 +210,11 @@ class PreviewThumbnails {
 
     // Wait until media has a duration
     if (!this.player.media.duration) return;
-
-    if (event.type === 'touchmove') {
-      // Calculate seek hover position as approx video seconds
-      this.seekTime = this.player.media.duration * (this.player.elements.inputs.seek.value / 100);
-    } else {
-      // Calculate seek hover position as approx video seconds
       const clientRect = this.player.elements.progress.getBoundingClientRect();
+      let pageX = event.pageX;
+      if(event.touches && event.touches.length > 0) {
+        pageX = event.touches[0].pageX;
+      }      
       const percentage = (100 / clientRect.width) * (event.pageX - clientRect.left);
       this.seekTime = this.player.media.duration * (percentage / 100);
 
@@ -230,7 +228,7 @@ class PreviewThumbnails {
         this.seekTime = this.player.media.duration - 1;
       }
 
-      this.mousePosX = event.pageX;
+      this.mousePosX = pageX;
 
       const text = this.player.progressDiv.getCurrentText(event);
       // Set time text inside image container
@@ -244,7 +242,6 @@ class PreviewThumbnails {
         // this.elements.thumb.time.innerText.concat('\n');
         this.elements.thumb.time.insertAdjacentHTML('afterbegin', `${point.label}<br>`);
       }
-    }
 
     // Download and show image
     this.showImageAtCurrentTime();
